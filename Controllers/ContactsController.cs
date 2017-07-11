@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace dotnetcorehack.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("/[controller]")]
     public class ContactsController : Controller
     {
         private IContactRepository _contactRepository;
@@ -20,27 +20,40 @@ namespace dotnetcorehack.Controllers
         }
 
         [HttpGet]
-        public JsonResult Get()
-        {
+        public IActionResult Get()
+        {    
             return Json(_contactRepository.GetContacts());
+            
         }
 
         [HttpGet("{id}")]
-        public JsonResult Get(int id)
+        public IActionResult Get(int id)
         {
-            return Json(_contactRepository.GetContactById(id));
+            var contact = _contactRepository.GetContactById(id);
+            if (contact == null) {
+                return NotFound();
+            }
+            return Json(contact);
         }
 
         [HttpPost]
-        public void Post([FromBody]Contact contact)
+        public IActionResult Post([FromBody]Contact contact)
         {
             _contactRepository.createContact(contact);
+
+            return Created("/contacts/" + contact.id.ToString(), contact);
         }
 
-        [HttpPut]
-        public void Put([FromBody]Contact contact)
+        [HttpPut("{id}")]
+        public IActionResult Put(int id, [FromBody]Contact contact)
         {
-            _contactRepository.updateContact(contact);
+            var contactUpdated = _contactRepository.updateContact(id, contact);
+
+            if (contactUpdated == null) {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

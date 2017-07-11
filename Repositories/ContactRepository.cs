@@ -17,14 +17,28 @@ namespace dotnetcorehack.Repositories {
             return _dataContact.Contacts.ToList();
         }
 
-        public void updateContact(Contact contact) {
-            _dataContact.Contacts.Update(contact);
+        public Contact updateContact(int id, Contact contact) {
+            var contactToUpdate = _dataContact.Contacts.FirstOrDefault(n => n.id == id);
+
+            if (contactToUpdate == null) {
+                return null;
+            }
+
+            contactToUpdate.firstName = contact.firstName;
+            contactToUpdate.lastName = contact.lastName;
+            contactToUpdate.phone = contact.phone;    
+
+            _dataContact.Contacts.Update(contactToUpdate);
             _dataContact.SaveChanges();
+
+            return contactToUpdate;
         }
 
-        public void createContact(Contact contact) {
+        public Contact createContact(Contact contact) {
             _dataContact.Contacts.Add(contact);
             _dataContact.SaveChanges();
+
+            return contact;
         }
 
         public void deleteContact(int id) {
@@ -36,8 +50,8 @@ namespace dotnetcorehack.Repositories {
     public interface IContactRepository {
         Contact GetContactById(int id);
         List<Contact> GetContacts();
-        void updateContact(Contact contact);
-        void createContact(Contact contact);
+        Contact updateContact(int id, Contact contact);
+        Contact createContact(Contact contact);
         void deleteContact(int id);
     }
     
