@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using dotnetcorehack.Repositories;
 using dotnetcorehack.Models;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using dotnetcorehack.Factories;
 
 namespace dotnetcorehack.Controllers
 {
@@ -39,21 +41,29 @@ namespace dotnetcorehack.Controllers
         [HttpPost]
         public IActionResult Post([FromBody]Contact contact)
         {
-            _contactRepository.createContact(contact);
+            if (ModelState.IsValid) {
+                _contactRepository.createContact(contact);
 
-            return Created("/contacts/" + contact.id.ToString(), contact);
+                return Created("/contacts/" + contact.id.ToString(), contact);
+            }
+
+            return BadRequest(ErrorFactory.getErrorMessages(ViewData.ModelState));
         }
 
         [HttpPut("{id}")]
         public IActionResult Put(int id, [FromBody]Contact contact)
         {
-            var contactUpdated = _contactRepository.updateContact(id, contact);
+            if (ModelState.IsValid) {                
+                var contactUpdated = _contactRepository.updateContact(id, contact);
 
-            if (contactUpdated == null) {
-                return NotFound();
+                if (contactUpdated == null) {
+                    return NotFound();
+                }
+
+                return NoContent();
             }
 
-            return NoContent();
+            return BadRequest(ErrorFactory.getErrorMessages(ViewData.ModelState));
         }
 
         [HttpDelete("{id}")]
