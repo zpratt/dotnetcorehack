@@ -33,6 +33,7 @@ namespace dotnetcorehack
             services.AddDbContext<DataContext>(opt => opt.UseInMemoryDatabase());
 
             services.AddScoped<IContactRepository, ContactRepository>();
+            services.AddScoped<IGithubOrgRepository, GithubOrgRepository>();
             services.AddMvc();
         }
 
